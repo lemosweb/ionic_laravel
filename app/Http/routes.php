@@ -22,3 +22,7 @@ Route::get('test', function(){
     return $repository->all();
 
 });
+
+Route::auth();
+
+Route::get('/home', 'HomeController@index');
