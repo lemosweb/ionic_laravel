@@ -4,6 +4,7 @@ namespace CodeDelivery\Http\Controllers;
 
 use CodeDelivery\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -25,5 +26,12 @@ class HomeController extends Controller
     public function index()
     {
         return view('home');
+    }
+
+    public function teste()
+    {
+        $user = Auth::user()->id;
+
+        return view('teste', compact('user'));
     }
 }
