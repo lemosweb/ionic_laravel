@@ -1,27 +1,37 @@
 <?php
 
-namespace CodeDelivery\Http\Controllers\Api\DeliveryMan;
+namespace CodeDelivery\Http\Controllers\Api\Deliveryman;
 
 
 use CodeDelivery\Http\Controllers\Controller;
 use CodeDelivery\Services\OrderService;
-use CodeDelivery\Http\Requests\AdminCategoryRequest;
 use CodeDelivery\Http\Requests;
 use CodeDelivery\Repositories\OrderRepository;
+use CodeDelivery\Repositories\ProductRepository;
 use CodeDelivery\Repositories\UserRepository;
-use Illuminate\Http\Request;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
-
 
 
 class DeliverymanCheckoutController extends Controller
 {
 
     private $repository;
-
+    /**
+     * @var UserRepository
+     */
     private $userRepository;
+    /**
+     * @var ProductRepository
+     */
 
     private $service;
+
+    /**
+     * @param OrderRepository $repository
+     * @param UserRepository $userRepository
+     * @param OrderService $service
+     * @internal param ClientServices $
+     */
 
 
     public function __construct(
@@ -42,7 +52,6 @@ class DeliverymanCheckoutController extends Controller
 
         $id = Authorizer::getResourceOwnerId();
 
-
         $orders = $this->repository->with(['items'])->scopeQuery(function($query) use($id){
 
             return $query->where('user_deliveryman_id','=',$id);
@@ -54,32 +63,19 @@ class DeliverymanCheckoutController extends Controller
     }
 
 
-
-
     public function show($id)
     {
-        $idDeliveryman = Authorizer::getResourceOwnerId();
 
+        $o = $this->repository->with(['client','items','cupom'])->find($id);
+        $o->items->each(function($item){
 
-        return $this->repository->getByIdAndDeliveryMan($id, $idDeliveryman);
+            $item->product;
 
-    }
+        });
 
-    public function updateStatus(Request $request, $id)
-    {
-        $idDeliveryman = Authorizer::getResourceOwnerId();
-        $order = $this->service->updateStatus($id, $idDeliveryman, $request->get('status'));
-        if($order){
-            return $order;
-        }
-
-        abort(400, "Order não encontrado");
-
-
+        return $o;
 
     }
-
-
 
 
 }
